@@ -6,5 +6,5 @@ namespace PinaryDevelopment.Framework.Pipelines
 {
     using System.Threading.Tasks;
 
-    public delegate Task<T> PipelineDelegate<T>(T t);
+    public delegate Task PipelineDelegate<T>(T t);
 }

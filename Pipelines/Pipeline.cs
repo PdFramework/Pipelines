@@ -41,7 +41,8 @@ namespace PinaryDevelopment.Framework.Pipelines
                 prevComponent = currentComponent;
             }
 
-            return await firstComponent.InvokeAsync(t).ConfigureAwait(false); ;
+            await firstComponent.InvokeAsync(t).ConfigureAwait(false);
+            return t;
         }
 
         public Pipeline<T> AddParser<TParser>() where TParser : IParser<XElement, T>
