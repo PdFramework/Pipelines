@@ -7,15 +7,14 @@ namespace PinaryDevelopment.Framework.Pipelines
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using System.Xml.Linq;
 
-    public class Pipeline<T>
+    public class Pipeline<TInput, T>
     {
         public virtual IList<Func<IPipelineComponent<T>>> Components { get; }
 
         public IServiceProvider ServiceProvider { get; }
 
-        public IParser<XElement, T> XmlParser { get; set; }
+        public IParser<TInput, T> Parser { get; set; }
 
         public Pipeline(IServiceProvider serviceProvider)
         {
@@ -23,9 +22,10 @@ namespace PinaryDevelopment.Framework.Pipelines
             ServiceProvider = serviceProvider;
         }
 
-        public async Task<T> Process(T t)
+        public async Task<T> Process(TInput input)
         {
-            IPipelineComponent<T> firstComponent = null;
+            var t = Parser.Parse(input);
+            IPipelineComponent <T> firstComponent = null;
             IPipelineComponent<T> prevComponent = null;
             for (var i = Components.Count - 1; i >= 0; i--)
             {
@@ -45,13 +45,13 @@ namespace PinaryDevelopment.Framework.Pipelines
             return t;
         }
 
-        public Pipeline<T> AddParser<TParser>() where TParser : IParser<XElement, T>
+        public Pipeline<TInput, T> AddParser<TParser>() where TParser : IParser<TInput, T>
         {
-            XmlParser = (TParser)ServiceProvider.GetService(typeof(TParser));
+            Parser = (TParser)ServiceProvider.GetService(typeof(TParser));
             return this;
         }
 
-        public Pipeline<T> Use<TComponent>() where TComponent : IPipelineComponent<T>
+        public Pipeline<TInput, T> Use<TComponent>() where TComponent : IPipelineComponent<T>
         {
             Components.Add(() => (TComponent)ServiceProvider.GetService(typeof(TComponent)));
             return this;
